@@ -5,9 +5,9 @@ import * as THREE from "three";
 
 /**
  * Panorama 360°: esfera invertida con textura equirectangular desde /public.
- * @param {{ imagePath: string; containerRef: React.RefObject<HTMLElement | null> }} props
+ * @param {{ imagePath: string; initialYawDeg?: number; containerRef: React.RefObject<HTMLElement | null> }} props
  */
-export default function Three360Viewer({ imagePath, containerRef }) {
+export default function Three360Viewer({ imagePath, initialYawDeg = 0, containerRef }) {
   const meshRef = useRef(null);
 
   useEffect(() => {
@@ -120,7 +120,7 @@ export default function Three360Viewer({ imagePath, containerRef }) {
       );
     }
 
-    let lon = 0;
+    let lon = initialYawDeg;
     let lat = 0;
     let isDrag = false;
     let startX = 0;
@@ -243,7 +243,7 @@ export default function Three360Viewer({ imagePath, containerRef }) {
       renderer.dispose();
       canvas.remove();
     };
-  }, [imagePath, containerRef]);
+  }, [imagePath, initialYawDeg, containerRef]);
 
   return null;
 }

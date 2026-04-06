@@ -19,6 +19,7 @@ const initialModal = {
   title: "",
   mode: null,
   image360Paths: null,
+  initialYawDeg: 0,
   staticImagePath: null,
   staticAlt: "",
   videoPath: null,
@@ -30,7 +31,7 @@ export default function Home() {
   const closeModal = useCallback(() => setModal(initialModal), []);
 
   /** `paths` puede ser un array de URLs o una sola string (se convierte a un elemento). */
-  const open360 = useCallback((title, paths) => {
+  const open360 = useCallback((title, paths, options = {}) => {
     const image360Paths = Array.isArray(paths)
       ? paths.filter(Boolean)
       : paths
@@ -41,6 +42,9 @@ export default function Home() {
       title,
       mode: "360",
       image360Paths,
+      initialYawDeg: Number.isFinite(options.initialYawDeg)
+        ? options.initialYawDeg
+        : 0,
       staticImagePath: null,
       staticAlt: "",
       videoPath: null,
@@ -138,7 +142,11 @@ export default function Home() {
           exploreIcon="vr"
           exploreLabel="Explorar vídeo 360°"
           onExplore={() =>
-            open360("SALA GUERREROS · VIDEO 360°", salaMedia.guerrerosVideo)
+            open360(
+              "SALA GUERREROS · VIDEO 360°",
+              salaMedia.guerrerosVideo,
+              { initialYawDeg: 180 }
+            )
           }
         />
 
@@ -217,6 +225,7 @@ export default function Home() {
           title={modal.title}
           mode={modal.mode}
           image360Paths={modal.image360Paths}
+          initialYawDeg={modal.initialYawDeg}
           staticImagePath={modal.staticImagePath}
           staticAlt={modal.staticAlt}
           videoPath={modal.videoPath}

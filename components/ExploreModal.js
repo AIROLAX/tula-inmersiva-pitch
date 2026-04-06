@@ -18,6 +18,7 @@ export default function ExploreModal({
   mode,
   /** Lista de texturas 360 (misma sección); navegable en modal y en pantalla completa */
   image360Paths = null,
+  initialYawDeg = 0,
   staticImagePath,
   staticAlt = "Vista conceptual",
   videoPath,
@@ -279,6 +280,7 @@ export default function ExploreModal({
                   <Three360Viewer
                     key={current360Path}
                     imagePath={current360Path}
+                    initialYawDeg={initialYawDeg}
                     containerRef={canvasWrapRef}
                   />
                   <button
