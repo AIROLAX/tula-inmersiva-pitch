@@ -44,24 +44,43 @@ export default function Three360Viewer({ imagePath, containerRef }) {
     /* Esfera “invertida”: ver la textura desde dentro. Usar FrontSide, NO BackSide junto con scale(-1). */
     geo.scale(-1, 1, 1);
 
+    const isVideoPath = /\.(mp4|webm|ogg|mov)$/i.test(imagePath);
     const loader = new THREE.TextureLoader();
     const maxAniso =
       typeof renderer.capabilities.getMaxAnisotropy === "function"
         ? renderer.capabilities.getMaxAnisotropy()
         : 8;
+    let htmlVideo = null;
 
-    loader.load(
-      imagePath,
-      (tex) => {
-        if (disposed) {
-          tex.dispose();
-          return;
-        }
+    const applyFallback = () => {
+      if (disposed) return;
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0x1a0a28,
+        side: THREE.FrontSide,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      meshRef.current = mesh;
+      scene.add(mesh);
+    };
+
+    if (isVideoPath) {
+      htmlVideo = document.createElement("video");
+      htmlVideo.src = imagePath;
+      htmlVideo.crossOrigin = "anonymous";
+      htmlVideo.loop = true;
+      htmlVideo.muted = true;
+      htmlVideo.playsInline = true;
+      htmlVideo.setAttribute("playsinline", "true");
+      htmlVideo.setAttribute("webkit-playsinline", "true");
+      htmlVideo.preload = "auto";
+
+      const onLoaded = () => {
+        if (disposed || !htmlVideo) return;
+        const tex = new THREE.VideoTexture(htmlVideo);
         tex.colorSpace = THREE.SRGBColorSpace;
-        tex.minFilter = THREE.LinearMipmapLinearFilter;
+        tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.anisotropy = Math.min(16, maxAniso);
-        tex.generateMipmaps = true;
+        tex.generateMipmaps = false;
         const mat = new THREE.MeshBasicMaterial({
           map: tex,
           side: THREE.FrontSide,
@@ -69,19 +88,37 @@ export default function Three360Viewer({ imagePath, containerRef }) {
         const mesh = new THREE.Mesh(geo, mat);
         meshRef.current = mesh;
         scene.add(mesh);
-      },
-      undefined,
-      () => {
-        if (disposed) return;
-        const mat = new THREE.MeshBasicMaterial({
-          color: 0x1a0a28,
-          side: THREE.FrontSide,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        meshRef.current = mesh;
-        scene.add(mesh);
-      }
-    );
+        htmlVideo.play().catch(() => {});
+      };
+
+      htmlVideo.addEventListener("loadeddata", onLoaded, { once: true });
+      htmlVideo.addEventListener("error", applyFallback, { once: true });
+      htmlVideo.load();
+    } else {
+      loader.load(
+        imagePath,
+        (tex) => {
+          if (disposed) {
+            tex.dispose();
+            return;
+          }
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.minFilter = THREE.LinearMipmapLinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+          tex.anisotropy = Math.min(16, maxAniso);
+          tex.generateMipmaps = true;
+          const mat = new THREE.MeshBasicMaterial({
+            map: tex,
+            side: THREE.FrontSide,
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          meshRef.current = mesh;
+          scene.add(mesh);
+        },
+        undefined,
+        applyFallback
+      );
+    }
 
     let lon = 0;
     let lat = 0;
@@ -196,6 +233,12 @@ export default function Three360Viewer({ imagePath, containerRef }) {
         scene.remove(mesh);
       } else {
         geo.dispose();
+      }
+      if (htmlVideo) {
+        htmlVideo.pause();
+        htmlVideo.src = "";
+        htmlVideo.load();
+        htmlVideo = null;
       }
       renderer.dispose();
       canvas.remove();

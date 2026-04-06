@@ -135,10 +135,10 @@ export default function Home() {
             "Primer tótem infinito: columna OLED vertical frente a superficie reflectante en el suelo; la imagen se replica en profundidad y el bucle de animación sugiere un ritual sin fin, con atlantes y narrativa bélica tolteca.",
             "Segundo tótem infinito: columna gemela enfrentada; sensores de proximidad y presencia activan capas de contenido cuando el visitante se acerca, en diálogo visual con el primero y cierre hacia el túnel.",
           ]}
-          exploreIcon="render"
-          exploreLabel="Explorar panorama 360°"
+          exploreIcon="vr"
+          exploreLabel="Explorar vídeo 360°"
           onExplore={() =>
-            open360("SALA GUERREROS · Panorama 360°", salaMedia.guerrerosSlides)
+            open360("SALA GUERREROS · VIDEO 360°", salaMedia.guerrerosVideo)
           }
         />
 
@@ -188,9 +188,9 @@ export default function Home() {
             "Duración: 8 min · narración en 3 idiomas",
           ]}
           exploreIcon="vr"
-          exploreLabel="Ver experiencia en vídeo"
+          exploreLabel="Ver vídeo 360 en pantalla completa"
           onExplore={() =>
-            openVideo("VISIÓN UMVRAL · Sala VR", salaMedia.salaVr)
+            open360("VISIÓN UMVRAL · VIDEO 360", salaMedia.salaVr)
           }
         />
 
