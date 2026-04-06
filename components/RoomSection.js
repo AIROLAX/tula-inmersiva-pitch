@@ -9,6 +9,7 @@ import {
   useSpring,
 } from "framer-motion";
 import PanoramaPreview from "./PanoramaPreview";
+import RoomImageCarousel from "./RoomImageCarousel";
 
 const containerVariants = {
   hidden: {},
@@ -54,6 +55,7 @@ export default function RoomSection({
   dataSection,
   alt = false,
   imageSrc,
+  imageSlides,
   /** Si se define, el panel usa vídeo en bucle (p. ej. Sala VR) en lugar de imagen */
   videoSrc,
   /** Misma textura que el modal 360: mini visor esférico en la parte baja del panel */
@@ -118,6 +120,8 @@ export default function RoomSection({
               }}
               onError={() => setVideoError(true)}
             />
+          ) : Array.isArray(imageSlides) && imageSlides.length > 0 ? (
+            <RoomImageCarousel images={imageSlides} alt={imageAlt} />
           ) : !imgError && imageSrc ? (
             <Image
               src={imageSrc}

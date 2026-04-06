@@ -1,8 +1,3 @@
-/**
- * Comprueba que los medios esperados existan en `public/` (rutas sensibles a mayúsculas).
- * Mantén esta lista alineada con `lib/salaMedia.js` y `lib/audio.js`.
- * En Vercel/CI: si falta algún archivo, el build falla (evita desplegar sin assets en Git).
- */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -11,9 +6,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, "..", "public");
 
 const REQUIRED = [
-  "Videos/1 El Origen.jpeg",
-  "Videos/2 Fprp Tollan.jpeg",
-  "Videos/Tunnel.jpeg",
+  "Videos/1 EL ORIGEN/1.jpg",
+  "Videos/1 EL ORIGEN/2.jpg",
+  "Videos/1 EL ORIGEN/3.PNG",
+  "Videos/1 EL ORIGEN/4.PNG",
+  "Videos/2 FORO TOLLAN/1.jpg",
+  "Videos/2 FORO TOLLAN/2.jpg",
+  "Videos/3 SALA GUERREROS/3.jpg",
+  "Videos/3 SALA GUERREROS/4.PNG",
+  "Videos/4 TUNNEL/Gemini_Generated_Image_4gwsi24gwsi24gws.jpg",
+  "Videos/4 TUNNEL/Gemini_Generated_Image_ux3w3cux3w3cux3w.jpg",
+  "Videos/4 TUNNEL/Gemini_Generated_Image_vljwyvvljwyvvljw.jpg",
+  "Videos/4 TUNNEL/Gemini_Generated_Image_y84bfly84bfly84b.jpg",
   "Videos/SalaVR.mp4",
   "Audio/[EFECTO DE SONIDO] MISTICO - mystical sound effect.mp3",
 ];
@@ -25,14 +29,8 @@ for (const rel of REQUIRED) {
 }
 
 if (missing.length) {
-  console.error(
-    "\n[verify-public-assets] Faltan archivos en public/:\n"
-  );
+  console.error("\n[verify-public-assets] Faltan archivos en public/:\n");
   missing.forEach((m) => console.error("  -", m));
-  console.error(
-    "\nAsegúrate de que existan en disco y en Git: git add public && git commit && git push\n" +
-      "En Vercel, mayúsculas importan: la carpeta debe llamarse Videos, no videos.\n"
-  );
   process.exit(1);
 }
 

@@ -16,7 +16,8 @@ export default function ExploreModal({
   onClose,
   title,
   mode,
-  image360Path,
+  /** Lista de texturas 360 (misma sección); navegable en modal y en pantalla completa */
+  image360Paths = null,
   staticImagePath,
   staticAlt = "Vista conceptual",
   videoPath,
@@ -25,6 +26,13 @@ export default function ExploreModal({
   const videoWrapRef = useRef(null);
   const videoRef = useRef(null);
   const [fsActive, setFsActive] = useState(false);
+  const [idx360, setIdx360] = useState(0);
+
+  const paths360 = Array.isArray(image360Paths)
+    ? image360Paths.filter(Boolean)
+    : [];
+  const n360 = paths360.length;
+  const current360Path = n360 > 0 ? paths360[Math.min(idx360, n360 - 1)] : null;
 
   useEffect(() => {
     const sync = () => setFsActive(isFullscreen());
@@ -56,6 +64,25 @@ export default function ExploreModal({
       exitFullscreen().catch(() => {});
     }
   }, [open]);
+
+  useEffect(() => {
+    if (open) setIdx360(0);
+  }, [open, image360Paths]);
+
+  useEffect(() => {
+    if (!open || mode !== "360" || n360 <= 1) return;
+    const onKey = (e) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setIdx360((i) => (i - 1 + n360) % n360);
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setIdx360((i) => (i + 1) % n360);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, mode, n360]);
 
   useEffect(() => {
     if (!open) return;
@@ -112,8 +139,16 @@ export default function ExploreModal({
       });
   }, []);
 
-  const is360 = mode === "360" && image360Path;
+  const is360 = mode === "360" && current360Path;
   const isVideo = mode === "video" && videoPath;
+
+  const go360 = useCallback(
+    (dir) => {
+      if (n360 <= 1) return;
+      setIdx360((i) => (i + dir + n360) % n360);
+    },
+    [n360]
+  );
 
   const fsBtnStyle = {
     position: "absolute",
@@ -240,22 +275,70 @@ export default function ExploreModal({
                       "0 0 0 1px rgba(201,168,76,0.2), 0 24px 80px rgba(0,0,0,0.6)",
                   }}
                 >
+                  {/* El canvas se monta primero; controles encima (z-index) */}
+                  <Three360Viewer
+                    key={current360Path}
+                    imagePath={current360Path}
+                    containerRef={canvasWrapRef}
+                  />
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleFs360();
                     }}
-                    style={fsBtnStyle}
+                    style={{ ...fsBtnStyle, zIndex: 8 }}
                   >
                     {fsActive ? "Salir de pantalla completa" : "Pantalla completa"}
                   </button>
-                  <Three360Viewer
-                    key={image360Path}
-                    imagePath={image360Path}
-                    containerRef={canvasWrapRef}
-                  />
+                  {n360 > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        className="room-carousel-btn room-carousel-btn--prev explore-modal-360-nav"
+                        aria-label="Panorama anterior"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          go360(-1);
+                        }}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        className="room-carousel-btn room-carousel-btn--next explore-modal-360-nav"
+                        aria-label="Panorama siguiente"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          go360(1);
+                        }}
+                      >
+                        ›
+                      </button>
+                      <div
+                        className="room-carousel-dots explore-modal-360-dots"
+                        role="tablist"
+                        aria-label="Elegir imagen del panorama"
+                      >
+                        {paths360.map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            role="tab"
+                            aria-selected={i === idx360}
+                            className={`room-carousel-dot${i === idx360 ? " active" : ""}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIdx360(i);
+                            }}
+                            aria-label={`Imagen ${i + 1} de ${n360}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
                   <div
+                    className="explore-modal-360-hint"
                     style={{
                       position: "absolute",
                       bottom: 16,
@@ -269,10 +352,15 @@ export default function ExploreModal({
                       lineHeight: 1.5,
                       color: "rgba(201,168,76,.7)",
                       pointerEvents: "none",
+                      zIndex: 6,
                     }}
                   >
-                    Estás dentro del panorama · arrastra para mirar · rueda = zoom · como A-Frame /
-                    WebVR, sin gafas
+                    Estás dentro del panorama · arrastra para mirar · rueda = zoom
+                    {n360 > 1
+                      ? " · ‹ › o puntos para otra imagen · ← → en teclado"
+                      : ""}
+                    {" · "}
+                    A-Frame / WebVR, sin gafas
                   </div>
                 </div>
               )}

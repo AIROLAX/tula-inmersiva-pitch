@@ -49,7 +49,7 @@ export default function Blueprint() {
     <section
       className="section"
       id="blueprint"
-      data-nav-section="5"
+      data-nav-section="6"
       style={{ flexDirection: "column", padding: "80px 40px" }}
     >
       <div className="blueprint-inner" style={{ maxWidth: 1100, width: "100%", textAlign: "center" }}>
@@ -221,10 +221,17 @@ export default function Blueprint() {
               PANTALLAS CURVADAS 270° · PISO LED INTERACTIVO · VISTA CENITAL LIDAR
             </text>
 
-            <Region targetId="sala-4" label="Ir a Sala IV · Visión Umvral">
+            <Region targetId="sala-4" label="Ir a Sala IV · Túnel Inmersivo">
+              <rect x="60" y="302" width="200" height="20" rx="4" fill="rgba(0,28,18,0.92)" stroke="#c9a84c" strokeWidth="1.2" />
+              <text x="160" y="316" textAnchor="middle" fill="#f0d060" fontFamily="Cinzel,serif" fontSize="8" pointerEvents="none">
+                SALA IV · TÚNEL INMERSIVO
+              </text>
+            </Region>
+
+            <Region targetId="sala-5" label="Ir a Sala V · Visión Umvral">
               <rect x="580" y="55" width="160" height="245" rx="6" fill="rgba(15,0,30,0.8)" stroke="#c9a84c" strokeWidth="1.5" />
               <text x="660" y="80" textAnchor="middle" fill="#f0d060" fontFamily="Cinzel,serif" fontSize="10" pointerEvents="none">
-                SALA IV
+                SALA V
               </text>
               <text x="660" y="96" textAnchor="middle" fill="#c9a84c" fontFamily="Cinzel,serif" fontSize="9" pointerEvents="none">
                 VISIÓN UMVRAL

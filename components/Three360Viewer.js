@@ -16,7 +16,8 @@ export default function Three360Viewer({ imagePath, containerRef }) {
 
     let disposed = false;
     const canvas = document.createElement("canvas");
-    wrap.appendChild(canvas);
+    /* prepend: los botones del modal quedan encima del canvas */
+    wrap.prepend(canvas);
 
     const renderer = new THREE.WebGLRenderer({
       canvas,
