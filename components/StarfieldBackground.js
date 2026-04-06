@@ -290,13 +290,19 @@ export default function StarfieldBackground() {
     constellations.push(doubleOrbit(randomUnitVector(), R));
     constellations.push(clusterPleiades(randomUnitVector(), 0.16, R));
     constellations.push(beltLine(randomUnitVector(), randomUnitVector(), 0.04, R, 6));
+    constellations.push(clusterPleiades(randomUnitVector(), 0.14, R));
+    constellations.push(serpentChain(randomUnitVector(), R, 7));
+    constellations.push(worldCross(randomUnitVector(), R));
+    constellations.push(zodiacWheel(randomUnitVector(), R, 10));
+    constellations.push(pentagramStar(randomUnitVector(), R));
+    constellations.push(doubleOrbit(randomUnitVector(), R));
 
     let constStarCount = 0;
     constellations.forEach((c) => {
       constStarCount += c.stars.length;
     });
 
-    const bgCount = 1750;
+    const bgCount = 2600;
     const totalStars = bgCount + constStarCount;
 
     const pos = new Float32Array(totalStars * 3);
@@ -424,11 +430,11 @@ export default function StarfieldBackground() {
     let raf = 0;
     function animate() {
       raf = requestAnimationFrame(animate);
-      t += 0.00032;
-      camera.rotation.x = Math.sin(t * 0.65) * 0.048;
-      camera.rotation.y = Math.cos(t * 0.48) * 0.078;
-      celestials.rotation.y = t * 0.018;
-      celestials.rotation.x = Math.sin(t * 0.31) * 0.012;
+      t += 0.00024;
+      camera.rotation.x = Math.sin(t * 0.56) * 0.028;
+      camera.rotation.y = Math.cos(t * 0.44) * 0.042;
+      celestials.rotation.y = t * 0.013;
+      celestials.rotation.x = Math.sin(t * 0.3) * 0.008;
       renderer.render(scene, camera);
     }
     animate();

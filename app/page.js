@@ -107,12 +107,11 @@ export default function Home() {
           tag="Clímax y Apogeo · Auditorio Multiusos"
           title="Foro Tollan"
           titleLine2="Kinética, Tótems y Vídeo Wall"
-          body="El auditorio principal se transforma en Tollan en su apogeo. Tótems narrativos integrados en las columnas existentes proyectan secuencias históricas, mientras sensores Kinect activan contenido interactivo según el movimiento del visitante. Un vídeo wall central de 6 × 3 m ancla la narrativa visual."
+          body="El auditorio principal se transforma en Tollan en su apogeo. Sensores Kinect activan contenido interactivo según el movimiento del visitante. Un vídeo wall central de 6 × 3 m ancla la narrativa visual."
           specs={[
             "Vídeo wall 6 × 3 m · 12 pantallas LED Fine Pitch 1.2mm",
-            "6 tótems narrativos en columnas (75\" OLED transparente)",
             "Kinect Azure · detección de movimiento en tiempo real",
-            "Capacidad: 120 personas · configuración flexible",
+            "Capacidad: 100 personas de pie · configuración flexible",
           ]}
           exploreIcon="render"
           exploreLabel="Explorar panorama 360°"

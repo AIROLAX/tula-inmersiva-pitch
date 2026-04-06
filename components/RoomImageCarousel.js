@@ -39,6 +39,8 @@ export default function RoomImageCarousel({ images, alt = "" }) {
   };
 
   if (!images?.length) return null;
+  const isVideo = (src) => /\.(mp4|webm|ogg|mov)$/i.test(src || "");
+  const current = images[index];
 
   return (
     <div
@@ -61,15 +63,33 @@ export default function RoomImageCarousel({ images, alt = "" }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
-            <Image
-              src={images[index]}
-              alt={n > 1 ? `${alt} · ${index + 1} de ${n}` : alt}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              unoptimized
-              style={{ objectFit: "cover" }}
-              priority={index === 0}
-            />
+            {isVideo(current) ? (
+              <video
+                src={current}
+                aria-label={n > 1 ? `${alt} · ${index + 1} de ${n}` : alt}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <Image
+                src={current}
+                alt={n > 1 ? `${alt} · ${index + 1} de ${n}` : alt}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                unoptimized
+                style={{ objectFit: "cover" }}
+                priority={index === 0}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -95,7 +115,7 @@ export default function RoomImageCarousel({ images, alt = "" }) {
           <div
             className="room-carousel-dots"
             role="tablist"
-            aria-label="Seleccionar imagen"
+            aria-label="Seleccionar elemento"
           >
             {images.map((_, i) => (
               <button
@@ -105,7 +125,7 @@ export default function RoomImageCarousel({ images, alt = "" }) {
                 aria-selected={i === index}
                 className={`room-carousel-dot${i === index ? " active" : ""}`}
                 onClick={() => setIndex(i)}
-                aria-label={`Imagen ${i + 1} de ${n}`}
+                aria-label={`Elemento ${i + 1} de ${n}`}
               />
             ))}
           </div>
