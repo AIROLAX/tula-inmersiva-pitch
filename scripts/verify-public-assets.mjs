@@ -22,7 +22,8 @@ const REQUIRED = [
   "Videos/4 TUNNEL/Gemini_Generated_Image_ux3w3cux3w3cux3w.jpg",
   "Videos/4 TUNNEL/Gemini_Generated_Image_vljwyvvljwyvvljw.jpg",
   "Videos/4 TUNNEL/Gemini_Generated_Image_y84bfly84bfly84b.jpg",
-  "Videos/SalaVR.mp4",
+  "Videos/5 SALAVR/SALAVRIMAGEN.jpg",
+  "Videos/5 SALAVR/SalaVR.mp4",
   "Audio/[EFECTO DE SONIDO] MISTICO - mystical sound effect.mp3",
 ];
 

@@ -91,7 +91,6 @@ export default function Home() {
             "4 proyectores Epson láser 16,000 lm — blend seamless",
             "Sistema de audio 5.1 espacial · subwoofer cenital",
             "Animación generativa: constelaciones nahuas en tiempo real",
-            "Piso de resina reflectante · efecto espejo estelar",
           ]}
           exploreIcon="360"
           exploreLabel="Explorar panorama 360°"
@@ -182,7 +181,8 @@ export default function Home() {
         <RoomSection
           id="sala-5"
           dataSection="5"
-          videoSrc={salaMedia.salaVr}
+          imageSlides={salaMedia.salaVrSlides}
+          panoramaPreviewPath={salaMedia.salaVrPreview}
           imageAlt="Experiencia VR · Visión Umvral"
           numberRoman="V"
           tag="Trascendencia · Retorno al Cosmos"
@@ -198,7 +198,7 @@ export default function Home() {
           exploreIcon="vr"
           exploreLabel="Ver vídeo 360 en pantalla completa"
           onExplore={() =>
-            open360("VISIÓN UMVRAL · VIDEO 360", salaMedia.salaVr)
+            open360("VISIÓN UMVRAL · VIDEO 360", salaMedia.salaVrSlides)
           }
         />
 
