@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tollan Inmersivo · Sala Guadalupe Mastache · Tula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#c9a84c;--gold-l:#f0d060;--gold-d:#7a5a10;
+  --cosmic:#050008;--deep:#0d0018;--mystic:#130025;
+  --terra:#6b2d1f;--stone:#2a1a0e;
+  --parch:#e8d5b0;--parch-dim:#9a8060;
+  --r:8px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--cosmic);color:var(--parch);font-family:'Crimson Text',Georgia,serif;overflow-x:hidden}
+
+/* ── CANVAS BG ─────────────────────────────────── */
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* ── NAV DOTS ──────────────────────────────────── */
+#nav-dots{position:fixed;right:28px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:14px}
+.dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--gold);background:transparent;cursor:pointer;transition:all .3s;position:relative}
+.dot.active{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.dot:hover::after{content:attr(data-label);position:absolute;right:20px;top:50%;transform:translateY(-50%);white-space:nowrap;font-family:'Inter',sans-serif;font-size:11px;color:var(--gold);background:rgba(5,0,8,.85);padding:3px 8px;border-radius:4px;border:1px solid var(--gold-d)}
+
+/* ── SECTIONS ──────────────────────────────────── */
+.section{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;z-index:1;overflow:hidden}
+
+/* ── TOLTEC DIVIDER SVG ────────────────────────── */
+.greca-divider{width:100%;height:40px;opacity:.35;display:block}
+
+/* ── HERO ──────────────────────────────────────── */
+#hero{flex-direction:column;text-align:center;padding:40px 20px}
+.hero-eyebrow{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:6px;text-transform:uppercase;color:var(--gold);opacity:0;animation:fadeUp .8s .3s forwards}
+.hero-title{font-family:'Cinzel',serif;font-size:clamp(2.8rem,8vw,7rem);font-weight:900;line-height:1.05;margin:.5rem 0;background:linear-gradient(135deg,#f0d060 0%,#c9a84c 40%,#8b6030 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;animation:fadeUp .9s .6s forwards}
+.hero-subtitle{font-family:'Cinzel',serif;font-size:clamp(1rem,3vw,1.5rem);color:var(--parch-dim);letter-spacing:4px;opacity:0;animation:fadeUp .8s .9s forwards}
+.hero-desc{max-width:560px;margin:2rem auto 0;font-size:1.15rem;line-height:1.7;color:var(--parch-dim);opacity:0;animation:fadeUp .8s 1.2s forwards}
+.hero-scroll{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fadeUp .8s 2s forwards}
+.scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--gold),transparent);animation:scrollPulse 2s infinite}
+.scroll-label{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase}
+
+/* ── LOBBY BANNER ──────────────────────────────── */
+#lobby{background:linear-gradient(180deg,transparent 0%,rgba(13,0,24,.95) 30%,rgba(13,0,24,1) 100%)}
+.lobby-inner{max-width:900px;padding:80px 40px;text-align:center}
+.section-tag{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;opacity:0;transition:opacity .7s,transform .7s;transform:translateY(20px)}
+.section-tag.visible{opacity:1;transform:translateY(0)}
+.lobby-title{font-family:'Cinzel',serif;font-size:clamp(1.8rem,5vw,3.5rem);font-weight:700;line-height:1.2;margin-bottom:1.5rem;opacity:0;transition:opacity .8s .15s,transform .8s .15s;transform:translateY(25px)}
+.lobby-title.visible{opacity:1;transform:translateY(0)}
+.lobby-text{font-size:1.2rem;line-height:1.8;color:var(--parch-dim);max-width:700px;margin:0 auto;opacity:0;transition:opacity .8s .3s,transform .8s .3s;transform:translateY(25px)}
+.lobby-text.visible{opacity:1;transform:translateY(0)}
+.lobby-pills{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:2.5rem;opacity:0;transition:opacity .8s .45s;transform:translateY(20px)}
+.lobby-pills.visible{opacity:1;transform:translateY(0)}
+.pill{border:1px solid var(--gold-d);color:var(--gold);font-family:'Inter',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:6px 18px;border-radius:20px;background:rgba(201,168,76,.08)}
+
+/* ── ROOM SECTIONS ─────────────────────────────── */
+.room-section{flex-direction:row;gap:0;padding:0;min-height:100vh}
+.room-art{flex:1;position:relative;min-height:50vh;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.room-canvas{width:100%;height:100%;position:absolute;top:0;left:0}
+.room-art-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:40px;background:linear-gradient(to top,rgba(5,0,8,.85) 0%,transparent 60%)}
+.explore-btn{display:inline-flex;align-items:center;gap:10px;background:rgba(201,168,76,.12);border:1.5px solid var(--gold);color:var(--gold);font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:3px;text-transform:uppercase;padding:14px 28px;border-radius:4px;cursor:pointer;transition:all .3s;backdrop-filter:blur(6px)}
+.explore-btn:hover{background:rgba(201,168,76,.25);box-shadow:0 0 24px rgba(201,168,76,.3);transform:translateY(-2px)}
+.explore-btn svg{width:20px;height:20px;flex-shrink:0}
+.room-info{flex:1;display:flex;flex-direction:column;justify-content:center;padding:clamp(40px,7vw,100px) clamp(30px,5vw,80px);background:linear-gradient(135deg,var(--deep) 0%,var(--mystic) 100%);position:relative;overflow:hidden}
+.room-info::before{content:'';position:absolute;top:-60px;left:-60px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.06) 0%,transparent 70%);pointer-events:none}
+.room-number{font-family:'Cinzel',serif;font-size:5rem;font-weight:900;color:rgba(201,168,76,.08);line-height:1;margin-bottom:-1rem;opacity:0;transition:opacity .8s,transform .8s;transform:translateX(30px)}
+.room-number.visible{opacity:1;transform:translateX(0)}
+.room-tag{font-family:'Inter',sans-serif;font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem;opacity:0;transition:opacity .7s .1s,transform .7s .1s;transform:translateX(30px)}
+.room-tag.visible{opacity:1;transform:translateX(0)}
+.room-title{font-family:'Cinzel',serif;font-size:clamp(1.6rem,3.5vw,2.6rem);font-weight:700;line-height:1.2;margin-bottom:1.2rem;opacity:0;transition:opacity .8s .2s,transform .8s .2s;transform:translateX(30px)}
+.room-title.visible{opacity:1;transform:translateX(0)}
+.room-title span{display:block;font-size:.65em;color:var(--gold);font-weight:400}
+.room-text{font-size:1.1rem;line-height:1.85;color:var(--parch-dim);max-width:440px;opacity:0;transition:opacity .8s .35s,transform .8s .35s;transform:translateX(30px)}
+.room-text.visible{opacity:1;transform:translateX(0)}
+.room-specs{margin-top:2rem;display:flex;flex-direction:column;gap:8px;opacity:0;transition:opacity .8s .5s;transform:translateX(20px)}
+.room-specs.visible{opacity:1;transform:translateX(0)}
+.spec-row{display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:.8rem;color:var(--parch-dim)}
+.spec-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+
+/* alternate: art on right */
+.room-section.alt .room-art{order:2}
+.room-section.alt .room-info{order:1;background:linear-gradient(225deg,var(--deep) 0%,var(--mystic) 100%)}
+.room-section.alt .room-number,.room-section.alt .room-tag,.room-section.alt .room-title,.room-section.alt .room-text,.room-section.alt .room-specs{transform:translateX(-30px)}
+.room-section.alt .room-number.visible,.room-section.alt .room-tag.visible,.room-section.alt .room-title.visible,.room-section.alt .room-text.visible,.room-section.alt .room-specs.visible{transform:translateX(0)}
+
+/* ── BLUEPRINT ─────────────────────────────────── */
+#blueprint{flex-direction:column;padding:80px 40px;text-align:center}
+.blueprint-inner{max-width:1100px;width:100%}
+.blueprint-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:3rem;text-align:left}
+.blueprint-card{border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:24px;background:rgba(201,168,76,.04);position:relative;overflow:hidden;opacity:0;transition:opacity .7s,transform .7s;transform:translateY(30px)}
+.blueprint-card.visible{opacity:1;transform:translateY(0)}
+.blueprint-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.bp-icon{font-size:2rem;margin-bottom:12px}
+.bp-title{font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);margin-bottom:.6rem}
+.bp-text{font-size:.95rem;line-height:1.7;color:var(--parch-dim)}
+.blueprint-diagram{margin-top:3rem;border:1px solid rgba(201,168,76,.2);border-radius:8px;padding:40px;background:rgba(201,168,76,.03);position:relative;opacity:0;transition:opacity 1s .2s,transform 1s .2s;transform:translateY(30px)}
+.blueprint-diagram.visible{opacity:1;transform:translateY(0)}
+
+/* ── FOOTER ────────────────────────────────────── */
+footer{position:relative;z-index:1;text-align:center;padding:48px 20px;border-top:1px solid rgba(201,168,76,.1)}
+footer p{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--parch-dim);letter-spacing:1px}
+footer strong{color:var(--gold)}
+
+/* ── MODAL ─────────────────────────────────────── */
+#modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.95);display:none;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+#modal-overlay.open{display:flex}
+#modal-header{width:100%;max-width:1200px;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;flex-shrink:0}
+#modal-title{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--gold);letter-spacing:3px}
+#modal-close{background:transparent;border:1.5px solid rgba(201,168,76,.4);color:var(--gold);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .3s}
+#modal-close:hover{background:rgba(201,168,76,.15);border-color:var(--gold)}
+#modal-body{width:100%;max-width:1200px;flex:1;min-height:0;position:relative;padding:0 24px 24px}
+#modal-canvas-wrap{width:100%;height:100%;border-radius:8px;overflow:hidden;position:relative;background:#000;cursor:grab}
+#modal-canvas-wrap:active{cursor:grabbing}
+#modal-canvas-wrap canvas{display:block;width:100%!important;height:100%!important}
+#modal-hint{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:'Inter',sans-serif;font-size:11px;letter-spacing:3px;color:rgba(201,168,76,.6);text-transform:uppercase;pointer-events:none;animation:fadeHint 3s 1.5s forwards}
+#modal-img-wrap{width:100%;height:100%;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#modal-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+
+/* ── KEYFRAMES ─────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scrollPulse{0%,100%{opacity:.3;transform:scaleY(.8)}50%{opacity:1;transform:scaleY(1)}}
+@keyframes fadeHint{0%{opacity:.7}80%{opacity:.7}100%{opacity:0}}
+@keyframes rotateGlyph{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* ── RESPONSIVE ────────────────────────────────── */
+@media(max-width:768px){
+  .room-section{flex-direction:column!important}
+  .room-art{min-height:55vw;order:1!important}
+  .room-info{order:2!important;padding:40px 24px}
+  .room-section.alt .room-number,.room-section.alt .room-tag,.room-section.alt .room-title,.room-section.alt .room-text,.room-section.alt .room-specs{transform:translateY(20px)}
+  #nav-dots{display:none}
+  #modal-body{padding:0 12px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- Background starfield -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- Side navigation -->
+<nav id="nav-dots">
+  <div class="dot active" data-label="Inicio" data-target="0" onclick="scrollToSection(0)"></div>
+  <div class="dot" data-label="Sala I · El Origen" data-target="1" onclick="scrollToSection(1)"></div>
+  <div class="dot" data-label="Sala II · Foro Tollan" data-target="2" onclick="scrollToSection(2)"></div>
+  <div class="dot" data-label="Sala III · Sendero del Tiempo" data-target="3" onclick="scrollToSection(3)"></div>
+  <div class="dot" data-label="Sala IV · Visión Umvral" data-target="4" onclick="scrollToSection(4)"></div>
+  <div class="dot" data-label="Blueprint Técnico" data-target="5" onclick="scrollToSection(5)"></div>
+</nav>
+
+<!-- Modal overlay -->
+<div id="modal-overlay" role="dialog" aria-modal="true">
+  <div id="modal-header">
+    <span id="modal-title">EXPLORAR</span>
+    <button id="modal-close" aria-label="Cerrar" onclick="closeModal()">✕</button>
+  </div>
+  <div id="modal-body">
+    <div id="modal-canvas-wrap" style="display:none">
+      <div id="modal-hint">Arrastra para explorar · Rueda para zoom</div>
+    </div>
+    <div id="modal-img-wrap" style="display:none">
+      <img id="modal-img" src="" alt="Vista conceptual">
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 0 · HERO
+═══════════════════════════════════════════════ -->
+<section class="section" id="hero" data-section="0">
+  <!-- Toltec sun glyph -->
+  <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(600px,90vw);height:min(600px,90vw);opacity:.04;animation:rotateGlyph 120s linear infinite;pointer-events:none" viewBox="0 0 400 400">
+    <circle cx="200" cy="200" r="195" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <circle cx="200" cy="200" r="150" fill="none" stroke="#c9a84c" stroke-width="1"/>
+    <circle cx="200" cy="200" r="100" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+    <circle cx="200" cy="200" r="50" fill="none" stroke="#c9a84c" stroke-width="1"/>
+    <g stroke="#c9a84c" stroke-width="1" fill="none">
+      <line x1="200" y1="5" x2="200" y2="395"/>
+      <line x1="5" y1="200" x2="395" y2="200"/>
+      <line x1="60" y1="60" x2="340" y2="340"/>
+      <line x1="340" y1="60" x2="60" y2="340"/>
+      <line x1="200" y1="5" x2="340" y2="60"/><line x1="340" y1="60" x2="395" y2="200"/>
+      <line x1="395" y1="200" x2="340" y2="340"/><line x1="340" y1="340" x2="200" y2="395"/>
+      <line x1="200" y1="395" x2="60" y2="340"/><line x1="60" y1="340" x2="5" y2="200"/>
+      <line x1="5" y1="200" x2="60" y2="60"/><line x1="60" y1="60" x2="200" y2="5"/>
+    </g>
+    <g fill="#c9a84c">
+      <polygon points="200,30 210,55 200,50 190,55"/>
+      <polygon points="200,370 210,345 200,350 190,345"/>
+      <polygon points="30,200 55,190 50,200 55,210"/>
+      <polygon points="370,200 345,210 350,200 345,190"/>
+      <polygon points="70,70 90,80 80,90 68,80"/>
+      <polygon points="330,70 310,80 320,90 332,80"/>
+      <polygon points="70,330 90,320 80,310 68,320"/>
+      <polygon points="330,330 310,320 320,310 332,320"/>
+    </g>
+  </svg>
+
+  <div style="position:relative;z-index:2;max-width:900px;margin:0 auto">
+    <p class="hero-eyebrow">Sala de Interpretación Guadalupe Mastache · Tula, Hidalgo</p>
+    <h1 class="hero-title">TOLLAN<br>INMERSIVO</h1>
+    <p class="hero-subtitle">El Viaje del Héroe Tolteca</p>
+    <p class="hero-desc">Una experiencia inmersiva en cuatro actos que recorre el cosmos, el apogeo, la caída y la trascendencia de la civilización tolteca a través de tecnología 360°, VR y narrativa kinética.</p>
+  </div>
+
+  <div class="hero-scroll">
+    <span class="scroll-label">Descender</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SECTION LOBBY · BIENVENIDA
+═══════════════════════════════════════════════ -->
+<section class="section" id="lobby" data-section="0">
+  <div class="lobby-inner">
+    <p class="section-tag reveal">Propuesta de Intervención</p>
+    <h2 class="lobby-title reveal" style="background:linear-gradient(135deg,#f0d060,#c9a84c,#8b6030);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+      Un recorrido entre murales, piezas arqueológicas y cosmos digital
+    </h2>
+    <p class="lobby-text reveal">
+      La Sala Guadalupe Mastache albergará una intervención de cuatro capas narrativas que fusiona escaneados 3D y LiDAR del sitio con animación procedural, proyección 360°, interactividad kinética y realidad virtual. El visitante no observa la historia: la <em>habita</em>.
+    </p>
+    <div class="lobby-pills reveal">
+      <span class="pill">Proyección 360°</span>
+      <span class="pill">Kinect / IA Kinética</span>
+      <span class="pill">Tótems Narrativos</span>
+      <span class="pill">Tunnel Inmersivo</span>
+      <span class="pill">VR · 6 DoF</span>
+      <span class="pill">LiDAR & Fotogrametría</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 1 · EL ORIGEN
+═══════════════════════════════════════════════ -->
+<section class="section room-section" id="sala-1" data-section="1">
+  <!-- Art panel left -->
+  <div class="room-art">
+    <canvas class="room-canvas" id="canvas-sala1"></canvas>
+    <div class="room-art-overlay">
+      <button class="explore-btn" onclick="openModal('cosmos360','EL ORIGEN · Proyección 360°')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+          <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+        </svg>
+        Explorar 360°
+      </button>
+    </div>
+  </div>
+  <!-- Info panel right -->
+  <div class="room-info">
+    <div class="room-number reveal">I</div>
+    <p class="room-tag reveal">Cosmos Estelar · Sala Modular</p>
+    <h2 class="room-title reveal">El Origen<span>Proyección 360° Immersiva</span></h2>
+    <p class="room-text reveal">
+      La primera sala modular (10 × 10 m) donde la historia tolteca comienza en el cosmos. Proyectores Epson láser ultra-wide EB-PU2216B envuelven al visitante en animaciones estelares generadas de constelaciones nahuas, mapas celestes y la cosmogonía de Quetzalcóatl.
+    </p>
+    <div class="room-specs reveal">
+      <div class="spec-row"><span class="spec-dot"></span>4 proyectores Epson láser 16,000 lm — blend seamless</div>
+      <div class="spec-row"><span class="spec-dot"></span>Sistema de audio 5.1 espacial · subwoofer cenital</div>
+      <div class="spec-row"><span class="spec-dot"></span>Animación generativa: constelaciones nahuas en tiempo real</div>
+      <div class="spec-row"><span class="spec-dot"></span>Piso de resina reflectante · efecto espejo estelar</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 2 · FORO TOLLAN
+═══════════════════════════════════════════════ -->
+<section class="section room-section alt" id="sala-2" data-section="2">
+  <div class="room-art">
+    <canvas class="room-canvas" id="canvas-sala2"></canvas>
+    <div class="room-art-overlay">
+      <button class="explore-btn" onclick="openModal('render','FORO TOLLAN · Render Conceptual','#modal-foro')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Ver Render Conceptual
+      </button>
+    </div>
+  </div>
+  <div class="room-info">
+    <div class="room-number reveal">II</div>
+    <p class="room-tag reveal">Clímax y Apogeo · Auditorio Multiusos</p>
+    <h2 class="room-title reveal">Foro Tollan<span>Kinética, Tótems y Vídeo Wall</span></h2>
+    <p class="room-text reveal">
+      El auditorio principal se transforma en Tollan en su apogeo. Tótems narrativos integrados en las columnas existentes proyectan secuencias históricas, mientras sensores Kinect activan contenido interactivo según el movimiento del visitante. Un vídeo wall central de 6 × 3 m ancla la narrativa visual.
+    </p>
+    <div class="room-specs reveal">
+      <div class="spec-row"><span class="spec-dot"></span>Vídeo wall 6 × 3 m · 12 pantallas LED Fine Pitch 1.2mm</div>
+      <div class="spec-row"><span class="spec-dot"></span>6 tótems narrativos en columnas (75" OLED transparente)</div>
+      <div class="spec-row"><span class="spec-dot"></span>Kinect Azure · detección de movimiento en tiempo real</div>
+      <div class="spec-row"><span class="spec-dot"></span>Capacidad: 120 personas · configuración flexible</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 3 · SENDERO DEL TIEMPO
+═══════════════════════════════════════════════ -->
+<section class="section room-section" id="sala-3" data-section="3">
+  <div class="room-art">
+    <canvas class="room-canvas" id="canvas-sala3"></canvas>
+    <div class="room-art-overlay">
+      <button class="explore-btn" onclick="openModal('tunnel360','SENDERO DEL TIEMPO · Gigapanorama 360°')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+          <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+          <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+        </svg>
+        Explorar Túnel 360°
+      </button>
+    </div>
+  </div>
+  <div class="room-info">
+    <div class="room-number reveal">III</div>
+    <p class="room-tag reveal">La Caída Ritual · Túnel Inmersivo</p>
+    <h2 class="room-title reveal">Sendero del Tiempo<span>Plumas de Quetzalcóatl · Vista Cenital</span></h2>
+    <p class="room-text reveal">
+      Un túnel de 18 metros donde el visitante desciende a través de la caída ritual de Tollan. El techo integra una vista cenital LiDAR de la ciudad arqueológica; las paredes se cubren de plumas de Quetzalcóatl animadas que se desintegran con el avance. El suelo traslúcido revela capas estratigráficas.
+    </p>
+    <div class="room-specs reveal">
+      <div class="spec-row"><span class="spec-dot"></span>Túnel 18 m × 3.5 m · pantallas curvadas de 270°</div>
+      <div class="spec-row"><span class="spec-dot"></span>Vista cenital LiDAR · escaneado real zona arqueológica</div>
+      <div class="spec-row"><span class="spec-dot"></span>Piso LED 2 mm interactivo · presión activada</div>
+      <div class="spec-row"><span class="spec-dot"></span>Aromas procedurales · copal y tierra mojada</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 4 · VISIÓN UMVRAL
+═══════════════════════════════════════════════ -->
+<section class="section room-section alt" id="sala-4" data-section="4">
+  <div class="room-art">
+    <canvas class="room-canvas" id="canvas-sala4"></canvas>
+    <div class="room-art-overlay">
+      <button class="explore-btn" onclick="openModal('vr','VISIÓN UMVRAL · Sala VR')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        Ver Experiencia VR
+      </button>
+    </div>
+  </div>
+  <div class="room-info">
+    <div class="room-number reveal">IV</div>
+    <p class="room-tag reveal">Trascendencia · Retorno al Cosmos</p>
+    <h2 class="room-title reveal">Visión Umvral<span>Sala VR · Clímax Final</span></h2>
+    <p class="room-text reveal">
+      El umbral de la trascendencia. El visitante equipa un headset VR de 6 DoF y es transportado al cosmos tolteca reconstruido en fotogrametría, flotando sobre Tula Grande en su momento de mayor esplendor. El clímax cierra el ciclo del Héroe: la conexión entre el tiempo y el cosmos.
+    </p>
+    <div class="room-specs reveal">
+      <div class="spec-row"><span class="spec-dot"></span>Meta Quest 3 · 6 DoF · 20 estaciones simultáneas</div>
+      <div class="spec-row"><span class="spec-dot"></span>Fotogrametría 4K · zona arqueológica real de Tula</div>
+      <div class="spec-row"><span class="spec-dot"></span>Haptic feedback · suelos vibrotáctiles</div>
+      <div class="spec-row"><span class="spec-dot"></span>Duración: 8 min · narración en 3 idiomas</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     SECTION 5 · BLUEPRINT TÉCNICO
+═══════════════════════════════════════════════ -->
+<section class="section" id="blueprint" data-section="5" style="flex-direction:column;padding:80px 40px">
+  <div class="blueprint-inner" style="max-width:1100px;width:100%;text-align:center">
+    <p class="section-tag reveal">Ingeniería de la Experiencia</p>
+    <h2 class="lobby-title reveal" style="background:linear-gradient(135deg,#f0d060,#c9a84c,#8b6030);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Blueprint Técnico & Wishlist</h2>
+    <p class="lobby-text reveal">Infraestructura tecnológica, distribución de equipos y requerimientos de instalación para las cuatro salas de la experiencia Tollan Inmersivo.</p>
+
+    <div class="blueprint-grid">
+      <div class="blueprint-card reveal" style="transition-delay:.05s">
+        <div class="bp-icon">🎥</div>
+        <div class="bp-title">Proyección & Display</div>
+        <div class="bp-text">4× Epson EB-PU2216B láser 16K lm · 6× Totem OLED 75" transparente · Vídeo Wall LED 6×3m Fine Pitch 1.2mm · 2× Proyector cenital túnel 4K</div>
+      </div>
+      <div class="blueprint-card reveal" style="transition-delay:.1s">
+        <div class="bp-icon">🔊</div>
+        <div class="bp-title">Audio Espacial</div>
+        <div class="bp-text">Sistema Dolby Atmos 7.1.4 · Subwoofers bajo piso · Altavoces direccionales cardioides por zona · Silentdisco para sala VR · Integración OSC con control narrativo</div>
+      </div>
+      <div class="blueprint-card reveal" style="transition-delay:.15s">
+        <div class="bp-icon">🧠</div>
+        <div class="bp-title">Interactividad & IA</div>
+        <div class="bp-text">Azure Kinect DK · Detección esqueletal 32 pts · Motor de partículas reactivo Unity DOTS · ML para reconocimiento de gestos rituales toltecas</div>
+      </div>
+      <div class="blueprint-card reveal" style="transition-delay:.2s">
+        <div class="bp-icon">🥽</div>
+        <div class="bp-title">Realidad Virtual</div>
+        <div class="bp-text">20× Meta Quest 3 · Servidor de streaming VR local (5GHz mesh) · Fotogrametría 4K de Tula Grande · Duración 8 min · Gestión de flota MDM</div>
+      </div>
+      <div class="blueprint-card reveal" style="transition-delay:.25s">
+        <div class="bp-icon">⚡</div>
+        <div class="bp-title">Infraestructura</div>
+        <div class="bp-text">UPS central 30 kVA · Climatización de precisión por sala · Rack central 42U con redundancia · Fibra OM4 backbone · Control centralizado Crestron</div>
+      </div>
+      <div class="blueprint-card reveal" style="transition-delay:.3s">
+        <div class="bp-icon">🏛️</div>
+        <div class="bp-title">Contenido Cultural</div>
+        <div class="bp-text">Escaneado LiDAR zona arqueológica · 3D fotogrametría Atlantes y Palacio Quemado · Animación procedural códices toltecas · Consultoría INAH</div>
+      </div>
+    </div>
+
+    <!-- Blueprint diagram -->
+    <div class="blueprint-diagram reveal">
+      <svg viewBox="0 0 800 420" style="width:100%;max-height:420px" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background grid -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(201,168,76,0.07)" stroke-width="1"/>
+          </pattern>
+          <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="rgba(201,168,76,0.6)"/>
+          </marker>
+        </defs>
+        <rect width="800" height="420" fill="url(#grid)"/>
+        <!-- Title -->
+        <text x="400" y="28" text-anchor="middle" fill="#c9a84c" font-family="Cinzel,serif" font-size="13" letter-spacing="3">PLANTA DE DISTRIBUCIÓN · TOLLAN INMERSIVO</text>
+        <line x1="80" y1="36" x2="720" y2="36" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+
+        <!-- Sala 1 El Origen (top-left) -->
+        <rect x="60" y="55" width="160" height="140" rx="6" fill="rgba(20,0,40,0.8)" stroke="#c9a84c" stroke-width="1.5"/>
+        <text x="140" y="80" text-anchor="middle" fill="#f0d060" font-family="Cinzel,serif" font-size="10">SALA I</text>
+        <text x="140" y="96" text-anchor="middle" fill="#c9a84c" font-family="Cinzel,serif" font-size="9">EL ORIGEN</text>
+        <!-- Projectors -->
+        <circle cx="90" cy="115" r="7" fill="none" stroke="#c9a84c" stroke-width="1.2"/><text x="90" y="119" text-anchor="middle" fill="#c9a84c" font-size="7">P</text>
+        <circle cx="190" cy="115" r="7" fill="none" stroke="#c9a84c" stroke-width="1.2"/><text x="190" y="119" text-anchor="middle" fill="#c9a84c" font-size="7">P</text>
+        <circle cx="90" cy="165" r="7" fill="none" stroke="#c9a84c" stroke-width="1.2"/><text x="90" y="169" text-anchor="middle" fill="#c9a84c" font-size="7">P</text>
+        <circle cx="190" cy="165" r="7" fill="none" stroke="#c9a84c" stroke-width="1.2"/><text x="190" y="169" text-anchor="middle" fill="#c9a84c" font-size="7">P</text>
+        <text x="140" y="182" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">4× EPSON LÁSER</text>
+
+        <!-- Sala 2 Foro Tollan (top-right) -->
+        <rect x="260" y="55" width="280" height="140" rx="6" fill="rgba(30,10,0,0.8)" stroke="#c9a84c" stroke-width="1.5"/>
+        <text x="400" y="80" text-anchor="middle" fill="#f0d060" font-family="Cinzel,serif" font-size="10">SALA II</text>
+        <text x="400" y="96" text-anchor="middle" fill="#c9a84c" font-family="Cinzel,serif" font-size="9">FORO TOLLAN</text>
+        <!-- Video wall -->
+        <rect x="290" y="108" width="220" height="50" rx="3" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-dasharray="4,2"/>
+        <text x="400" y="130" text-anchor="middle" fill="rgba(201,168,76,0.7)" font-size="8">VIDEO WALL 6×3 m</text>
+        <text x="400" y="144" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">LED FINE PITCH 1.2mm</text>
+        <!-- Totems -->
+        <rect x="277" y="164" width="10" height="20" rx="2" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1"/>
+        <rect x="313" y="164" width="10" height="20" rx="2" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1"/>
+        <rect x="477" y="164" width="10" height="20" rx="2" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1"/>
+        <rect x="513" y="164" width="10" height="20" rx="2" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1"/>
+        <text x="400" y="190" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">TÓTEMS OLED 75" EN COLUMNAS</text>
+
+        <!-- Sala 3 Túnel (middle, full width) -->
+        <rect x="60" y="220" width="480" height="80" rx="6" fill="rgba(0,20,10,0.8)" stroke="#c9a84c" stroke-width="1.5"/>
+        <text x="300" y="245" text-anchor="middle" fill="#f0d060" font-family="Cinzel,serif" font-size="10">SALA III · SENDERO DEL TIEMPO · TÚNEL INMERSIVO 18 m</text>
+        <!-- Tunnel arrow -->
+        <line x1="75" y1="263" x2="525" y2="263" stroke="rgba(201,168,76,0.4)" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="300" y="285" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">PANTALLAS CURVADAS 270° · PISO LED INTERACTIVO · VISTA CENITAL LIDAR</text>
+
+        <!-- Sala 4 VR -->
+        <rect x="580" y="55" width="160" height="245" rx="6" fill="rgba(15,0,30,0.8)" stroke="#c9a84c" stroke-width="1.5"/>
+        <text x="660" y="80" text-anchor="middle" fill="#f0d060" font-family="Cinzel,serif" font-size="10">SALA IV</text>
+        <text x="660" y="96" text-anchor="middle" fill="#c9a84c" font-family="Cinzel,serif" font-size="9">VISIÓN UMVRAL</text>
+        <!-- VR headsets grid -->
+        <g fill="none" stroke="#c9a84c" stroke-width="1">
+          <ellipse cx="610" cy="140" rx="12" ry="7"/><ellipse cx="640" cy="140" rx="12" ry="7"/>
+          <ellipse cx="670" cy="140" rx="12" ry="7"/><ellipse cx="700" cy="140" rx="12" ry="7"/>
+          <ellipse cx="610" cy="165" rx="12" ry="7"/><ellipse cx="640" cy="165" rx="12" ry="7"/>
+          <ellipse cx="670" cy="165" rx="12" ry="7"/><ellipse cx="700" cy="165" rx="12" ry="7"/>
+          <ellipse cx="610" cy="190" rx="12" ry="7"/><ellipse cx="640" cy="190" rx="12" ry="7"/>
+          <ellipse cx="670" cy="190" rx="12" ry="7"/><ellipse cx="700" cy="190" rx="12" ry="7"/>
+        </g>
+        <text x="660" y="220" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">20× META QUEST 3</text>
+        <text x="660" y="233" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">6 DOF · 5GHz MESH</text>
+        <text x="660" y="280" text-anchor="middle" fill="rgba(201,168,76,0.4)" font-size="6">HAPTIC FLOOR</text>
+
+        <!-- Central rack -->
+        <rect x="580" y="325" width="160" height="60" rx="4" fill="rgba(5,0,8,.9)" stroke="rgba(201,168,76,0.4)" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="660" y="350" text-anchor="middle" fill="rgba(201,168,76,0.7)" font-size="8">RACK CENTRAL 42U</text>
+        <text x="660" y="365" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">UPS 30kVA · CRESTRON</text>
+        <text x="660" y="378" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="7">FIBRA OM4 BACKBONE</text>
+
+        <!-- Lobby -->
+        <rect x="60" y="325" width="480" height="60" rx="4" fill="rgba(5,0,8,.9)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+        <text x="300" y="355" text-anchor="middle" fill="#c9a84c" font-family="Cinzel,serif" font-size="11">LOBBY · RECEPCIÓN · MURALES & PIEZAS ARQUEOLÓGICAS</text>
+        <text x="300" y="373" text-anchor="middle" fill="rgba(201,168,76,0.5)" font-size="8">Iluminación programable · vitrina arqueológica digital · tótem bienvenida</text>
+
+        <!-- Legend -->
+        <circle cx="90" cy="404" r="5" fill="none" stroke="#c9a84c" stroke-width="1"/><text x="100" y="408" fill="rgba(201,168,76,0.7)" font-size="8">Proyector</text>
+        <ellipse cx="165" cy="404" rx="10" ry="5" fill="none" stroke="#c9a84c" stroke-width="1"/><text x="180" y="408" fill="rgba(201,168,76,0.7)" font-size="8">Headset VR</text>
+        <rect x="250" y="399" width="12" height="8" rx="1" fill="rgba(201,168,76,0.3)" stroke="#c9a84c" stroke-width="1"/><text x="268" y="408" fill="rgba(201,168,76,0.7)" font-size="8">Tótem OLED</text>
+        <rect x="340" y="399" width="18" height="8" rx="1" fill="none" stroke="#c9a84c" stroke-width="1" stroke-dasharray="3,1"/><text x="364" y="408" fill="rgba(201,168,76,0.7)" font-size="8">Infraestructura</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p><strong>Tollan Inmersivo</strong> · Sala de Interpretación Guadalupe Mastache · Tula, Hidalgo · México</p>
+  <p style="margin-top:8px;font-size:.75rem">Propuesta de Experiencia Inmersiva 2025 · Confidencial</p>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  BACKGROUND STARFIELD (Three.js)
+// ═══════════════════════════════════════════════════════════
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:false});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
+  camera.position.z = 1;
+
+  // Stars
+  const starGeo = new THREE.BufferGeometry();
+  const count = 2200;
+  const pos = new Float32Array(count*3);
+  const col = new Float32Array(count*3);
+  for(let i=0;i<count;i++){
+    pos[i*3]   = (Math.random()-0.5)*20;
+    pos[i*3+1] = (Math.random()-0.5)*20;
+    pos[i*3+2] = (Math.random()-0.5)*20;
+    const warm = Math.random();
+    col[i*3]   = 0.7 + warm*0.3;
+    col[i*3+1] = 0.7 + warm*0.15;
+    col[i*3+2] = 0.8 + (1-warm)*0.2;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  starGeo.setAttribute('color',    new THREE.BufferAttribute(col,3));
+  const starMat = new THREE.PointsMaterial({size:0.04, vertexColors:true, transparent:true, opacity:0.7, sizeAttenuation:true});
+  scene.add(new THREE.Points(starGeo, starMat));
+
+  let W=innerWidth, H=innerHeight;
+  function resize(){
+    W=innerWidth; H=innerHeight;
+    renderer.setSize(W,H,false);
+    camera.aspect=W/H; camera.updateProjectionMatrix();
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let t=0;
+  (function animate(){
+    requestAnimationFrame(animate);
+    t+=0.0003;
+    camera.rotation.x = Math.sin(t*0.7)*0.05;
+    camera.rotation.y = Math.cos(t*0.5)*0.08;
+    renderer.render(scene, camera);
+  })();
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  ROOM CANVASES (2D procedural art)
+// ═══════════════════════════════════════════════════════════
+function resizeCanvas(c){
+  c.width  = c.offsetWidth  * devicePixelRatio;
+  c.height = c.offsetHeight * devicePixelRatio;
+}
+
+// Sala 1 · Cosmos
+function drawSala1(c){
+  resizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  const g = ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,W*.7);
+  g.addColorStop(0,'#1a003a'); g.addColorStop(.5,'#0a0020'); g.addColorStop(1,'#050008');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  // Stars
+  for(let i=0;i<800;i++){
+    const x=Math.random()*W, y=Math.random()*H, r=Math.random()*1.5*devicePixelRatio;
+    const a=0.4+Math.random()*0.6;
+    const warm=Math.random();
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${Math.floor(220+warm*35)},${Math.floor(200+warm*20)},${Math.floor(180+(1-warm)*75)},${a})`;
+    ctx.fill();
+  }
+  // Milky Way
+  const mw=ctx.createLinearGradient(0,H*.3,W,H*.7);
+  mw.addColorStop(0,'transparent'); mw.addColorStop(.35,'rgba(100,60,160,0.12)');
+  mw.addColorStop(.5,'rgba(140,80,200,0.18)'); mw.addColorStop(.65,'rgba(100,60,160,0.12)'); mw.addColorStop(1,'transparent');
+  ctx.fillStyle=mw; ctx.fillRect(0,0,W,H);
+  // Constellation lines
+  ctx.strokeStyle='rgba(201,168,76,0.15)'; ctx.lineWidth=devicePixelRatio;
+  const pts=[[.2,.3],[.35,.2],[.5,.4],[.4,.55],[.65,.35],[.7,.5],[.55,.65],[.8,.4]];
+  for(let i=0;i<pts.length-1;i++){
+    ctx.beginPath(); ctx.moveTo(pts[i][0]*W,pts[i][1]*H);
+    ctx.lineTo(pts[i+1][0]*W,pts[i+1][1]*H); ctx.stroke();
+  }
+  pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p[0]*W,p[1]*H,3*devicePixelRatio,0,Math.PI*2); ctx.fillStyle='rgba(201,168,76,0.5)'; ctx.fill(); });
+  // Glow center
+  const glw=ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,W*.3);
+  glw.addColorStop(0,'rgba(100,50,180,0.12)'); glw.addColorStop(1,'transparent');
+  ctx.fillStyle=glw; ctx.fillRect(0,0,W,H);
+}
+
+// Sala 2 · Foro Tollan
+function drawSala2(c){
+  resizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0d0500'); g.addColorStop(.6,'#1a0800'); g.addColorStop(1,'#050000');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  // Columns
+  const cols=6, cw=W/(cols+1);
+  for(let i=1;i<=cols;i++){
+    const x=cw*i, ch=H*0.75;
+    const cg=ctx.createLinearGradient(x-20*devicePixelRatio,0,x+20*devicePixelRatio,0);
+    cg.addColorStop(0,'rgba(60,30,10,0.9)'); cg.addColorStop(.5,'rgba(100,55,20,0.9)'); cg.addColorStop(1,'rgba(60,30,10,0.9)');
+    ctx.fillStyle=cg; ctx.fillRect(x-15*devicePixelRatio,H-ch,30*devicePixelRatio,ch);
+    // Totem glow
+    const tg=ctx.createRadialGradient(x,H*.4,0,x,H*.4,80*devicePixelRatio);
+    tg.addColorStop(0,'rgba(201,140,20,0.18)'); tg.addColorStop(1,'transparent');
+    ctx.fillStyle=tg; ctx.fillRect(0,0,W,H);
+    // Totem screen
+    ctx.fillStyle='rgba(201,168,76,0.15)'; ctx.fillRect(x-12*devicePixelRatio,H*.25,24*devicePixelRatio,H*.4);
+  }
+  // Video wall glow
+  const vw=ctx.createLinearGradient(W*.15,0,W*.85,0);
+  vw.addColorStop(0,'transparent'); vw.addColorStop(.3,'rgba(201,100,20,0.25)'); vw.addColorStop(.7,'rgba(201,100,20,0.25)'); vw.addColorStop(1,'transparent');
+  ctx.fillStyle=vw; ctx.fillRect(W*.15,H*.05,W*.7,H*.3);
+  // Floor reflection
+  const fr=ctx.createLinearGradient(0,H*.8,0,H);
+  fr.addColorStop(0,'rgba(100,55,20,0.1)'); fr.addColorStop(1,'transparent');
+  ctx.fillStyle=fr; ctx.fillRect(0,H*.8,W,H*.2);
+  // Ambient light bar
+  ctx.fillStyle='rgba(201,140,30,0.06)'; ctx.fillRect(0,H*.28,W,H*.02);
+}
+
+// Sala 3 · Tunnel
+function drawSala3(c){
+  resizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.fillStyle='#020a04'; ctx.fillRect(0,0,W,H);
+  // Tunnel rings (perspective)
+  const cx=W/2, cy=H/2;
+  for(let r=10;r<=Math.max(W,H);r+=35){
+    const alpha=Math.max(0,0.5-(r/(Math.max(W,H)*.8))*0.5);
+    ctx.beginPath(); ctx.ellipse(cx,cy,r*1.2,r*.7,0,0,Math.PI*2);
+    const hue=r<200?140:100;
+    ctx.strokeStyle=`rgba(${40+r*.1},${150-r*.1},${60},${alpha*0.5})`;
+    ctx.lineWidth=1.5*devicePixelRatio; ctx.stroke();
+    // Gold ring accent
+    if(r%105<35){ ctx.strokeStyle=`rgba(201,168,76,${alpha*0.3})`; ctx.stroke(); }
+  }
+  // Feathers (curved lines)
+  for(let i=0;i<40;i++){
+    const side=Math.random()>.5?1:-1;
+    const startX=cx+side*(80+Math.random()*100)*devicePixelRatio;
+    const startY=Math.random()*H;
+    ctx.beginPath(); ctx.moveTo(startX,startY);
+    ctx.bezierCurveTo(cx+side*30*devicePixelRatio,startY-60*devicePixelRatio,cx,startY-30*devicePixelRatio,cx-side*20*devicePixelRatio,startY+40*devicePixelRatio);
+    const fc=Math.random();
+    ctx.strokeStyle=`rgba(${Math.floor(50+fc*100)},${Math.floor(180-fc*50)},${Math.floor(80+fc*50)},${0.15+fc*0.25})`;
+    ctx.lineWidth=1.5*devicePixelRatio; ctx.stroke();
+  }
+  // Center glow
+  const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,200*devicePixelRatio);
+  cg.addColorStop(0,'rgba(30,120,50,0.25)'); cg.addColorStop(.5,'rgba(20,80,30,0.1)'); cg.addColorStop(1,'transparent');
+  ctx.fillStyle=cg; ctx.fillRect(0,0,W,H);
+}
+
+// Sala 4 · VR
+function drawSala4(c){
+  resizeCanvas(c);
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  const g=ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,W*.7);
+  g.addColorStop(0,'#0f0025'); g.addColorStop(.5,'#08001a'); g.addColorStop(1,'#030008');
+  ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  // VR headset silhouette
+  const hx=W/2, hy=H/2;
+  ctx.beginPath();
+  ctx.ellipse(hx,hy,120*devicePixelRatio,70*devicePixelRatio,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(60,20,100,0.6)';
+  ctx.fill(); ctx.strokeStyle='rgba(150,80,255,0.4)'; ctx.lineWidth=2*devicePixelRatio; ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(hx-50*devicePixelRatio,hy,35*devicePixelRatio,45*devicePixelRatio,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(100,40,180,0.5)'; ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(hx+50*devicePixelRatio,hy,35*devicePixelRatio,45*devicePixelRatio,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(100,40,180,0.5)'; ctx.fill();
+  // Glow around headset
+  const hg=ctx.createRadialGradient(hx,hy,50*devicePixelRatio,hx,hy,200*devicePixelRatio);
+  hg.addColorStop(0,'rgba(120,50,255,0.2)'); hg.addColorStop(1,'transparent');
+  ctx.fillStyle=hg; ctx.fillRect(0,0,W,H);
+  // Particle field
+  for(let i=0;i<500;i++){
+    const x=Math.random()*W, y=Math.random()*H;
+    const a=Math.random()*.6;
+    ctx.beginPath(); ctx.arc(x,y,Math.random()*1.5*devicePixelRatio,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${150+Math.random()*105},${80+Math.random()*80},255,${a})`; ctx.fill();
+  }
+}
+
+function initRoomCanvases(){
+  const c1=document.getElementById('canvas-sala1');
+  const c2=document.getElementById('canvas-sala2');
+  const c3=document.getElementById('canvas-sala3');
+  const c4=document.getElementById('canvas-sala4');
+  [c1,c2,c3,c4].forEach(c=>{ if(c){ c.style.width='100%'; c.style.height='100%'; }});
+  setTimeout(()=>{
+    if(c1)drawSala1(c1); if(c2)drawSala2(c2);
+    if(c3)drawSala3(c3); if(c4)drawSala4(c4);
+  },100);
+  window.addEventListener('resize',()=>{
+    if(c1)drawSala1(c1); if(c2)drawSala2(c2);
+    if(c3)drawSala3(c3); if(c4)drawSala4(c4);
+  });
+}
+initRoomCanvases();
+
+// ═══════════════════════════════════════════════════════════
+//  SCROLL REVEAL
+// ═══════════════════════════════════════════════════════════
+const revealObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// ═══════════════════════════════════════════════════════════
+//  NAV DOTS
+// ═══════════════════════════════════════════════════════════
+const sections = document.querySelectorAll('[data-section]');
+const dots     = document.querySelectorAll('.dot');
+const sectionIds = ['hero','sala-1','sala-2','sala-3','sala-4','blueprint'];
+
+function scrollToSection(i){
+  const el = document.getElementById(sectionIds[i]);
+  if(el) el.scrollIntoView({behavior:'smooth'});
+}
+
+const navObs = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const idx = parseInt(e.target.dataset.section);
+      dots.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    }
+  });
+},{threshold:0.4, rootMargin:'-10% 0px -10% 0px'});
+sections.forEach(s=>navObs.observe(s));
+
+// ═══════════════════════════════════════════════════════════
+//  360° VIEWER (Three.js)
+// ═══════════════════════════════════════════════════════════
+let viewer360 = null;
+
+function create360Viewer(type){
+  const wrap = document.getElementById('modal-canvas-wrap');
+  wrap.style.display='block';
+  document.getElementById('modal-img-wrap').style.display='none';
+
+  const canvas = document.createElement('canvas');
+  wrap.appendChild(canvas);
+
+  const W=wrap.clientWidth, H=wrap.clientHeight;
+  const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+  renderer.setSize(W,H); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(80, W/H, 0.1, 100);
+
+  // Sphere geometry (inverted)
+  const geo = new THREE.SphereGeometry(50,64,32);
+  geo.scale(-1,1,1);
+
+  // Build procedural texture
+  const texCanvas = document.createElement('canvas');
+  texCanvas.width=2048; texCanvas.height=1024;
+  const tc = texCanvas.getContext('2d');
+
+  if(type==='cosmos360'){
+    // Cosmic background
+    const bg=tc.createLinearGradient(0,0,2048,1024);
+    bg.addColorStop(0,'#020008'); bg.addColorStop(.5,'#0a0020'); bg.addColorStop(1,'#020008');
+    tc.fillStyle=bg; tc.fillRect(0,0,2048,1024);
+    // Stars
+    for(let i=0;i<4000;i++){
+      const x=Math.random()*2048, y=Math.random()*1024;
+      const r=Math.random()*2.5, a=0.4+Math.random()*0.6;
+      tc.beginPath(); tc.arc(x,y,r,0,Math.PI*2);
+      const w=Math.random();
+      tc.fillStyle=`rgba(${Math.floor(200+w*55)},${Math.floor(180+w*40)},${Math.floor(160+(1-w)*95)},${a})`;
+      tc.fill();
+    }
+    // Nebula clouds
+    const nb=[
+      {x:400,y:300,r:250,c:'rgba(80,30,160,0.15)'},
+      {x:1200,y:500,r:300,c:'rgba(30,80,160,0.12)'},
+      {x:1700,y:200,r:200,c:'rgba(160,50,80,0.1)'},
+    ];
+    nb.forEach(n=>{ const ng=tc.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r); ng.addColorStop(0,n.c); ng.addColorStop(1,'transparent'); tc.fillStyle=ng; tc.fillRect(0,0,2048,1024); });
+    // Constellation
+    tc.strokeStyle='rgba(201,168,76,0.2)'; tc.lineWidth=1.5;
+    const cpts=[[300,200],[500,150],[700,280],[600,400],[800,350],[1000,200],[1100,350],[1300,280],[1500,180],[1700,300]];
+    for(let i=0;i<cpts.length-1;i++){ tc.beginPath(); tc.moveTo(cpts[i][0],cpts[i][1]); tc.lineTo(cpts[i+1][0],cpts[i+1][1]); tc.stroke(); }
+    cpts.forEach(p=>{ tc.beginPath(); tc.arc(p[0],p[1],4,0,Math.PI*2); tc.fillStyle='rgba(201,168,76,0.6)'; tc.fill(); });
+    // Projection glow (simulate projector beams)
+    const pj=tc.createRadialGradient(1024,512,50,1024,512,400);
+    pj.addColorStop(0,'rgba(120,60,220,0.1)'); pj.addColorStop(1,'transparent');
+    tc.fillStyle=pj; tc.fillRect(0,0,2048,1024);
+    // Quetzalcoatl glyph (simplified)
+    tc.save(); tc.translate(1024,512); tc.strokeStyle='rgba(201,168,76,0.12)'; tc.lineWidth=2;
+    for(let a=0;a<8;a++){ tc.rotate(Math.PI/4); tc.beginPath(); tc.moveTo(0,30); tc.lineTo(0,180); tc.stroke(); }
+    tc.restore();
+  } else if(type==='tunnel360'){
+    // Tunnel background
+    tc.fillStyle='#010a03'; tc.fillRect(0,0,2048,1024);
+    // Radial tunnel rings (equirectangular projection)
+    for(let i=0;i<30;i++){
+      const y1=512-i*18, y2=512+i*18;
+      const alpha=Math.max(0,0.5-i/30*0.5);
+      tc.strokeStyle=`rgba(40,150,60,${alpha*0.4})`; tc.lineWidth=1.5;
+      tc.beginPath(); tc.rect(0,y1,2048,y2-y1); tc.stroke();
+      if(i%3===0){tc.strokeStyle=`rgba(201,168,76,${alpha*0.2})`; tc.stroke();}
+    }
+    // Feathers
+    for(let i=0;i<120;i++){
+      const x=Math.random()*2048, y=Math.random()*1024;
+      const len=30+Math.random()*60;
+      const angle=-Math.PI/2+(-0.5+Math.random())*0.8;
+      tc.save(); tc.translate(x,y); tc.rotate(angle);
+      tc.beginPath(); tc.moveTo(0,0); tc.quadraticCurveTo(10,len/2,-5,len);
+      const fc=Math.random();
+      tc.strokeStyle=`rgba(${Math.floor(30+fc*80)},${Math.floor(160-fc*60)},${Math.floor(60+fc*40)},${0.3+fc*0.4})`;
+      tc.lineWidth=1+Math.random()*2; tc.stroke(); tc.restore();
+    }
+    // Center glow (simulates tunnel vanishing point)
+    const cg=tc.createRadialGradient(1024,512,0,1024,512,200);
+    cg.addColorStop(0,'rgba(50,200,80,0.3)'); cg.addColorStop(1,'transparent');
+    tc.fillStyle=cg; tc.fillRect(0,0,2048,1024);
+    // LiDAR scan lines
+    tc.strokeStyle='rgba(0,255,100,0.05)'; tc.lineWidth=1;
+    for(let y=0;y<1024;y+=8){ tc.beginPath(); tc.moveTo(0,y); tc.lineTo(2048,y); tc.stroke(); }
+    // Quetzalcoatl feather pattern
+    tc.strokeStyle='rgba(201,168,76,0.08)'; tc.lineWidth=1;
+    for(let x=0;x<2048;x+=64){
+      for(let y=0;y<1024;y+=64){
+        tc.beginPath(); tc.arc(x,y,20,0,Math.PI*2); tc.stroke();
+      }
+    }
+  }
+
+  const tex = new THREE.CanvasTexture(texCanvas);
+  const mat = new THREE.MeshBasicMaterial({map:tex, side:THREE.BackSide});
+  scene.add(new THREE.Mesh(geo,mat));
+
+  // Mouse / touch drag
+  let lon=0, lat=0, isDrag=false, startX=0, startY=0, startLon=0, startLat=0;
+  let autoRot=true, autoTimer;
+
+  function updateCamera(){
+    const phi   = THREE.MathUtils.degToRad(90 - Math.max(-85,Math.min(85,lat)));
+    const theta = THREE.MathUtils.degToRad(lon);
+    camera.lookAt(
+      Math.sin(phi)*Math.cos(theta),
+      Math.cos(phi),
+      Math.sin(phi)*Math.sin(theta)
+    );
+  }
+
+  wrap.addEventListener('mousedown',e=>{isDrag=true; autoRot=false; startX=e.clientX; startY=e.clientY; startLon=lon; startLat=lat; clearTimeout(autoTimer);});
+  wrap.addEventListener('mouseup',  ()=>{isDrag=false; autoTimer=setTimeout(()=>autoRot=true,3000);});
+  wrap.addEventListener('mousemove',e=>{
+    if(!isDrag) return;
+    lon = startLon - (e.clientX-startX)*0.2;
+    lat = startLat + (e.clientY-startY)*0.15;
+  });
+  wrap.addEventListener('touchstart',e=>{isDrag=true; autoRot=false; startX=e.touches[0].clientX; startY=e.touches[0].clientY; startLon=lon; startLat=lat;},{passive:true});
+  wrap.addEventListener('touchend',  ()=>{isDrag=false; autoTimer=setTimeout(()=>autoRot=true,3000);});
+  wrap.addEventListener('touchmove', e=>{
+    if(!isDrag) return;
+    lon = startLon - (e.touches[0].clientX-startX)*0.25;
+    lat = startLat + (e.touches[0].clientY-startY)*0.2;
+  },{passive:true});
+
+  // Wheel zoom
+  wrap.addEventListener('wheel',e=>{
+    camera.fov = Math.max(30, Math.min(100, camera.fov + e.deltaY*0.05));
+    camera.updateProjectionMatrix();
+  },{passive:true});
+
+  let active=true;
+  (function loop(){
+    if(!active) return;
+    requestAnimationFrame(loop);
+    if(autoRot) lon += 0.06;
+    updateCamera();
+    renderer.render(scene,camera);
+  })();
+
+  function handleResize(){
+    const w=wrap.clientWidth, h=wrap.clientHeight;
+    renderer.setSize(w,h,false);
+    camera.aspect=w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',handleResize);
+
+  return { destroy(){ active=false; renderer.dispose(); geo.dispose(); mat.dispose(); tex.dispose(); canvas.remove(); window.removeEventListener('resize',handleResize); }};
+}
+
+// ═══════════════════════════════════════════════════════════
+//  MODAL SYSTEM
+// ═══════════════════════════════════════════════════════════
+function openModal(type, title){
+  if(viewer360){ viewer360.destroy(); viewer360=null; }
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+
+  const canvasWrap = document.getElementById('modal-canvas-wrap');
+  const imgWrap    = document.getElementById('modal-img-wrap');
+
+  if(type==='cosmos360' || type==='tunnel360'){
+    canvasWrap.style.display='block'; imgWrap.style.display='none';
+    document.getElementById('modal-hint').style.opacity='1';
+    document.getElementById('modal-hint').style.animation='fadeHint 3s 1.5s forwards';
+    viewer360 = create360Viewer(type);
+  } else {
+    // Render placeholder
+    canvasWrap.style.display='none'; imgWrap.style.display='flex';
+    const img = document.getElementById('modal-img');
+    img.style.display='none';
+
+    // Draw placeholder canvas
+    const ph = document.createElement('canvas');
+    ph.width=1200; ph.height=600;
+    const pc=ph.getContext('2d');
+    const pg=pc.createLinearGradient(0,0,1200,600);
+    if(type==='render'){
+      pg.addColorStop(0,'#0d0500'); pg.addColorStop(1,'#1a0800');
+    } else {
+      pg.addColorStop(0,'#0f0025'); pg.addColorStop(1,'#03000a');
+    }
+    pc.fillStyle=pg; pc.fillRect(0,0,1200,600);
+    // Grid
+    pc.strokeStyle='rgba(201,168,76,0.07)'; pc.lineWidth=1;
+    for(let x=0;x<1200;x+=40){pc.beginPath();pc.moveTo(x,0);pc.lineTo(x,600);pc.stroke();}
+    for(let y=0;y<600;y+=40){pc.beginPath();pc.moveTo(0,y);pc.lineTo(1200,y);pc.stroke();}
+    // Center text
+    pc.font='bold 18px Cinzel,serif'; pc.fillStyle='rgba(201,168,76,0.4)'; pc.textAlign='center';
+    pc.fillText('[ RENDER CONCEPTUAL ]', 600, 270);
+    pc.font='14px Inter,sans-serif'; pc.fillStyle='rgba(201,168,76,0.3)';
+    pc.fillText('Reemplazar con render 3D · foro_tollan_render.jpg', 600, 305);
+    if(type==='vr'){
+      pc.fillText('Reemplazar con imagen de experiencia VR · vr_preview.jpg', 600, 335);
+    }
+    img.src = ph.toDataURL();
+    img.style.display='block';
+    imgWrap.style.display='flex';
+  }
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  if(viewer360){ viewer360.destroy(); viewer360=null; }
+  const cw=document.getElementById('modal-canvas-wrap');
+  cw.style.display='none';
+  while(cw.querySelector('canvas')) cw.querySelector('canvas').remove();
+}
+
+// Close on overlay click
+document.getElementById('modal-overlay').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+// ESC key
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
