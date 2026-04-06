@@ -76,7 +76,7 @@ export default function Blueprint() {
           </motion.h2>
           <motion.p className="lobby-text" variants={bpLine}>
             Infraestructura tecnológica, distribución de equipos y requerimientos de instalación para las
-            cuatro salas de la experiencia Tollan Inmersivo.
+            cinco salas de la experiencia Tollan Inmersivo.
           </motion.p>
         </motion.div>
 
@@ -210,23 +210,29 @@ export default function Blueprint() {
               TÓTEMS OLED 75&quot; EN COLUMNAS
             </text>
 
-            <Region targetId="sala-3" label="Ir a Sala III · Sendero del Tiempo">
-              <rect x="60" y="220" width="480" height="80" rx="6" fill="rgba(0,20,10,0.8)" stroke="#c9a84c" strokeWidth="1.5" />
-              <text x="300" y="245" textAnchor="middle" fill="#f0d060" fontFamily="Cinzel,serif" fontSize="10" pointerEvents="none">
-                SALA III · SENDERO DEL TIEMPO · TÚNEL INMERSIVO 18 m
+            <Region targetId="sala-3" label="Ir a Sala III · Guerreros">
+              <rect x="60" y="220" width="230" height="80" rx="6" fill="rgba(0,20,10,0.8)" stroke="#c9a84c" strokeWidth="1.5" />
+              <text x="175" y="243" textAnchor="middle" fill="#f0d060" fontFamily="Cinzel,serif" fontSize="9" pointerEvents="none">
+                SALA III · GUERREROS
+              </text>
+              <text x="175" y="258" textAnchor="middle" fill="#c9a84c" fontFamily="Cinzel,serif" fontSize="8" pointerEvents="none">
+                INTERACTIVA · LÚDICA
+              </text>
+            </Region>
+
+            <Region targetId="sala-4" label="Ir a Sala IV · Túnel inmersivo · Sendero del Tiempo">
+              <rect x="310" y="220" width="230" height="80" rx="6" fill="rgba(0,28,14,0.85)" stroke="#c9a84c" strokeWidth="1.5" />
+              <text x="425" y="243" textAnchor="middle" fill="#f0d060" fontFamily="Cinzel,serif" fontSize="9" pointerEvents="none">
+                SALA IV · TÚNEL INMERSIVO
+              </text>
+              <text x="425" y="258" textAnchor="middle" fill="#c9a84c" fontFamily="Cinzel,serif" fontSize="8" pointerEvents="none">
+                SENDERO DEL TIEMPO · 18 m
               </text>
             </Region>
             <line x1="75" y1="263" x2="525" y2="263" stroke="rgba(201,168,76,0.4)" strokeWidth="2" markerEnd="url(#bp-arrow)" pointerEvents="none" />
             <text x="300" y="285" textAnchor="middle" fill="rgba(201,168,76,0.5)" fontSize="7" pointerEvents="none">
-              PANTALLAS CURVADAS 270° · PISO LED INTERACTIVO · VISTA CENITAL LIDAR
+              PANTALLAS 270° · TÓTEMS INFINITOS · PISO LED · LIDAR CENITAL
             </text>
-
-            <Region targetId="sala-4" label="Ir a Sala IV · Túnel Inmersivo">
-              <rect x="60" y="302" width="200" height="20" rx="4" fill="rgba(0,28,18,0.92)" stroke="#c9a84c" strokeWidth="1.2" />
-              <text x="160" y="316" textAnchor="middle" fill="#f0d060" fontFamily="Cinzel,serif" fontSize="8" pointerEvents="none">
-                SALA IV · TÚNEL INMERSIVO
-              </text>
-            </Region>
 
             <Region targetId="sala-5" label="Ir a Sala V · Visión Umvral">
               <rect x="580" y="55" width="160" height="245" rx="6" fill="rgba(15,0,30,0.8)" stroke="#c9a84c" strokeWidth="1.5" />

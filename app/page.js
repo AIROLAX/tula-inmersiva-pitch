@@ -125,26 +125,21 @@ export default function Home() {
           id="sala-3"
           dataSection="3"
           imageSlides={salaMedia.guerrerosSlides}
-          panoramaPreviewPath={salaMedia.tunnel}
-          imageAlt="Sala Guerreros · Sendero del tiempo"
+          panoramaPreviewPath={salaMedia.guerrerosPreview}
+          imageAlt="Sala Guerreros · experiencia interactiva"
           numberRoman="III"
-          tag="La Caída Ritual · Túnel Inmersivo"
-          title="Sendero del Tiempo"
-          titleLine2="Plumas de Quetzalcóatl · Vista Cenital"
-          body="Un túnel de 18 metros donde el visitante desciende a través de la caída ritual de Tollan. El techo integra una vista cenital LiDAR de la ciudad arqueológica; las paredes se cubren de plumas de Quetzalcóatl animadas que se desintegran con el avance. El suelo traslúcido revela capas estratigráficas."
+          tag="Guerreros de Tula · Interactiva / Lúdica"
+          title="Sala Guerreros"
+          titleLine2="Dos tótems infinitos"
+          body="Espacio interactivo centrado en la figura del guerrero en la cultura de Tula. Aquí el visitante participa con gesto y presencia antes de continuar hacia el Sendero del Tiempo."
           specs={[
-            "Túnel 18 m × 3.5 m · pantallas curvadas de 270°",
-            "Vista cenital LiDAR · escaneado real zona arqueológica",
-            "Piso LED 2 mm interactivo · presión activada",
-            "Aromas procedurales · copal y tierra mojada",
+            "Primer tótem infinito: columna OLED vertical frente a superficie reflectante en el suelo; la imagen se replica en profundidad y el bucle de animación sugiere un ritual sin fin, con atlantes y narrativa bélica tolteca.",
+            "Segundo tótem infinito: columna gemela enfrentada; sensores de proximidad y presencia activan capas de contenido cuando el visitante se acerca, en diálogo visual con el primero y cierre hacia el túnel.",
           ]}
-          exploreIcon="tunnel"
+          exploreIcon="render"
           exploreLabel="Explorar panorama 360°"
           onExplore={() =>
-            open360(
-              "SENDERO DEL TIEMPO · Panorama 360°",
-              salaMedia.guerrerosSlides
-            )
+            open360("SALA GUERREROS · Panorama 360°", salaMedia.guerrerosSlides)
           }
         />
 
@@ -154,23 +149,24 @@ export default function Home() {
           alt
           imageSlides={salaMedia.tunnelImmersiveSlides}
           panoramaPreviewPath={salaMedia.tunnelImmersive}
-          imageAlt="Túnel inmersivo · experiencia envolvente"
+          imageAlt="Túnel inmersivo · Sendero del Tiempo"
           numberRoman="IV"
-          tag="Descenso ritual · Corredor envolvente"
-          title="Túnel Inmersivo"
-          titleLine2="270° · Inmersión total"
-          body="Corredor dedicado a la experiencia de túnel inmersivo: pantallas curvas, audio espacial y narrativa envolvente que prepara al visitante para el clímax de la travesía. El espacio concentra la tensión dramática antes del retorno al cosmos."
+          tag="La Caída Ritual · Túnel Inmersivo"
+          title="Sendero del Tiempo"
+          titleLine2="Plumas de Quetzalcóatl · Vista Cenital"
+          body="Un túnel de 18 metros donde el visitante desciende a través de la caída ritual de Tollan. El techo integra una vista cenital LiDAR de la ciudad arqueológica; las paredes se cubren de plumas de Quetzalcóatl animadas que se desintegran con el avance. El suelo traslúcido revela capas estratigráficas."
+          bodyParagraph2="En el tramo de túnel inmersivo, los tótems infinitos —pantallas verticales OLED en serie a lo largo del corredor, como en la composición del proyecto— repiten y amplifican el motivo ritual en profundidad, envolviendo al visitante en un ritmo visual continuo."
           specs={[
-            "Pantallas curvadas 270° · blend seamless",
-            "Audio direccional y ambientación ritual",
-            "Iluminación dinámica sincronizada con narrativa",
-            "Transición hacia la experiencia final",
+            "Túnel 18 m × 3.5 m · pantallas curvadas 270° · blend seamless",
+            "Tótems infinitos · OLED verticales en serie (túnel inmersivo)",
+            "Vista cenital LiDAR · escaneado real zona arqueológica",
+            "Piso LED 2 mm interactivo · audio direccional y aromas procedurales",
           ]}
           exploreIcon="tunnel"
           exploreLabel="Explorar panorama 360°"
           onExplore={() =>
             open360(
-              "TÚNEL INMERSIVO · Panorama 360°",
+              "TÚNEL INMERSIVO · SENDERO DEL TIEMPO · Panorama 360°",
               salaMedia.tunnelImmersiveSlides
             )
           }

@@ -7,8 +7,8 @@ const NAV = [
   { id: "hero", label: "Inicio", section: 0 },
   { id: "sala-1", label: "Sala I · El Origen", section: 1 },
   { id: "sala-2", label: "Sala II · Foro Tollan", section: 2 },
-  { id: "sala-3", label: "Sala III · Sendero del Tiempo", section: 3 },
-  { id: "sala-4", label: "Sala IV · Túnel Inmersivo", section: 4 },
+  { id: "sala-3", label: "Sala III · Guerreros", section: 3 },
+  { id: "sala-4", label: "Sala IV · Túnel / Sendero", section: 4 },
   { id: "sala-5", label: "Sala V · Visión Umvral", section: 5 },
   { id: "blueprint", label: "Blueprint Técnico", section: 6 },
 ];

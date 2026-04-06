@@ -591,6 +591,10 @@ html {
   font-style: italic;
 }
 
+.room-text-follow {
+  margin-top: 1rem;
+}
+
 .room-specs {
   margin-top: 2rem;
   display: flex;

@@ -66,6 +66,8 @@ export default function RoomSection({
   title,
   titleLine2,
   body,
+  /** Segundo párrafo opcional (misma tipografía que `body`) */
+  bodyParagraph2,
   specs,
   exploreIcon = "360",
   exploreLabel,
@@ -207,6 +209,11 @@ export default function RoomSection({
         <motion.p className="room-text" variants={iv}>
           {body}
         </motion.p>
+        {bodyParagraph2 ? (
+          <motion.p className="room-text room-text-follow" variants={iv}>
+            {bodyParagraph2}
+          </motion.p>
+        ) : null}
         <motion.div className="room-specs" variants={specsContainer}>
           {specs.map((line) => (
             <motion.div key={line} className="spec-row" variants={specRowVariants}>
