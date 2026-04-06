@@ -124,6 +124,7 @@ export default function RoomSection({
               alt={imageAlt}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
+              unoptimized
               style={{ objectFit: "cover" }}
               priority={false}
               onError={() => setImgError(true)}

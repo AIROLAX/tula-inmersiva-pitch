@@ -333,6 +333,7 @@ export default function ExploreModal({
                     alt={staticAlt}
                     fill
                     sizes="(max-width: 1200px) 100vw, 1200px"
+                    unoptimized
                     style={{ objectFit: "contain" }}
                     priority
                   />

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "verify:assets": "node scripts/verify-public-assets.mjs",
+    "build": "node scripts/verify-public-assets.mjs && next build",
     "start": "next start",
     "lint": "next lint"
   },

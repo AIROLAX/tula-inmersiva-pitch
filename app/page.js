@@ -1,5 +1,9 @@
 "use client";
 
+/**
+ * Medios (imágenes/vídeo/audio): rutas en `lib/salaMedia.js` y `lib/audio.js`
+ * → archivos físicos en `public/Videos/` y `public/Audio/` (servidos como `/Videos/...`, `/Audio/...`).
+ */
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import StarfieldBackground from "@/components/StarfieldBackground";

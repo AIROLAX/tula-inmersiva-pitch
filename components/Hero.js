@@ -84,6 +84,7 @@ export default function Hero({ heroImageSrc = "/hero-bg.jpg" }) {
             fill
             priority
             sizes="100vw"
+            unoptimized
             style={{ objectFit: "cover", opacity: 0.52 }}
             onError={() => setImgError(true)}
           />
